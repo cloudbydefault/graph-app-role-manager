@@ -16,6 +16,9 @@ SOURCE = (
     / "cross-platform"
     / "graph_app_role_manager.py"
 )
+BACKEND = SOURCE.with_name("graph_backend.ps1")
+SOURCE_TEXT = SOURCE.read_text(encoding="utf-8")
+BACKEND_TEXT = BACKEND.read_text(encoding="utf-8")
 SPEC = importlib.util.spec_from_file_location("graph_app_role_manager", SOURCE)
 if SPEC is None or SPEC.loader is None:
     raise RuntimeError("Unable to load graph_app_role_manager.py")
@@ -121,10 +124,62 @@ class PowerShellBridgeTests(unittest.TestCase):
         self.assertTrue(backend.is_file())
 
     def test_windows_backend_uses_device_code_authentication(self) -> None:
-        backend = SOURCE.with_name("graph_backend.ps1").read_text(encoding="utf-8")
+        backend = BACKEND_TEXT
         self.assertIn("if ($IsWindows)", backend)
         self.assertIn("$params.UseDeviceCode = $true", backend)
         self.assertIn("event = 'deviceCode'", backend)
+
+    def test_backend_process_uses_utf8_with_defensive_decoding(self) -> None:
+        self.assertIn('encoding="utf-8"', SOURCE_TEXT)
+        self.assertIn('errors="replace"', SOURCE_TEXT)
+        self.assertIn("text=True", SOURCE_TEXT)
+
+        with patch.object(MODULE.subprocess, "Popen") as popen:
+            popen.return_value = Mock(
+                poll=Mock(return_value=None),
+                stdout=io.StringIO(
+                    f'{MODULE.PROTOCOL_PREFIX}{{"ok":true,"event":"ready"}}\n'
+                ),
+                stderr=io.StringIO(),
+                stdin=io.StringIO(),
+            )
+            bridge = MODULE.PowerShellBridge(
+                BACKEND,
+                lambda _event, _payload: None,
+            )
+            with patch.object(bridge, "find_pwsh", return_value="/usr/local/bin/pwsh"):
+                bridge.start()
+
+        _, kwargs = popen.call_args
+        self.assertEqual(kwargs["encoding"], "utf-8")
+        self.assertEqual(kwargs["errors"], "replace")
+        self.assertTrue(kwargs["text"])
+
+    def test_backend_script_configures_utf8_console_encoding(self) -> None:
+        self.assertIn("[System.Text.UTF8Encoding]::new($false)", BACKEND_TEXT)
+        self.assertIn("[Console]::InputEncoding = $utf8NoBom", BACKEND_TEXT)
+        self.assertIn("[Console]::OutputEncoding = $utf8NoBom", BACKEND_TEXT)
+        self.assertIn("$OutputEncoding = $utf8NoBom", BACKEND_TEXT)
+
+    def test_on_connected_does_not_preload_all_identities(self) -> None:
+        self.assertNotIn("self.load_all_identities()", SOURCE_TEXT)
+
+        app = Mock()
+        app.set_busy = Mock()
+        app.dismiss_device_code_dialog = Mock()
+        app.connected = False
+        app.connect_button = Mock()
+        app.log = Mock()
+        app.load_permissions = Mock()
+
+        MODULE.GraphAppRoleManager.on_connected(
+            app,
+            {"account": "admin@example.com", "tenantId": "tenant-id"},
+        )
+
+        app.load_permissions.assert_called_once_with()
+        app.log.assert_called_once()
+        self.assertTrue(app.connected)
 
 
 if __name__ == "__main__":
