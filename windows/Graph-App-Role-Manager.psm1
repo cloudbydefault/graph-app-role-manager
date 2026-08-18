@@ -19,15 +19,7 @@ $script:LogLevelRank = @{
     ERROR   = 3
 }
 
-function Reset-GraphAppRoleManagerState {
-    if ($null -ne $script:form) {
-        try {
-            $script:form.Dispose()
-        }
-        catch {}
-        $script:form = $null
-    }
-
+function Initialize-GraphAppRoleManagerModuleState {
     $script:GraphConnected = $false
     $script:GraphServicePrincipal = $null
     $script:TargetServicePrincipal = $null
@@ -35,7 +27,68 @@ function Reset-GraphAppRoleManagerState {
     $script:SuppressIdentitySelectionEvent = $false
     $script:AllApplicationRoles = @()
     $script:VisibleApplicationRoles = @()
+
+    $script:form = $null
+    $script:rootLayout = $null
+    $script:headerPanel = $null
+    $script:titlePanel = $null
+    $script:lblTitle = $null
+    $script:lblSubtitle = $null
+    $script:btnConnect = $null
+    $script:tabs = $null
+    $script:tabAssign = $null
+    $script:mainLayout = $null
+    $script:grpIdentity = $null
+    $script:identityLayout = $null
+    $script:lblIdentitySearch = $null
+    $script:txtIdentityName = $null
+    $script:btnSearchIdentity = $null
+    $script:resultsLayout = $null
+    $script:lblSearchResults = $null
+    $script:cmbIdentityResults = $null
+    $script:summaryPanel = $null
+    $script:lblIdentityName = $null
+    $script:lblIdentityNameValue = $null
+    $script:lblObjectId = $null
+    $script:lblObjectIdValue = $null
+    $script:lblAppId = $null
+    $script:lblAppIdValue = $null
+    $script:splitPermissions = $null
+    $script:grpPermissions = $null
+    $script:permissionLayout = $null
+    $script:txtPermissionFilter = $null
+    $script:btnLoadPermissions = $null
+    $script:checkedPermissions = $null
+    $script:lblPermissionCount = $null
+    $script:btnAssign = $null
+    $script:grpCurrent = $null
+    $script:assignmentLayout = $null
+    $script:lblAssignedCount = $null
+    $script:btnRefreshAssignments = $null
+    $script:gridAssignments = $null
+    $script:btnRemove = $null
+    $script:tabLog = $null
+    $script:txtLog = $null
+    $script:colorCanvas = $null
+    $script:colorHeader = $null
+    $script:colorBlue = $null
+    $script:colorGreen = $null
+    $script:colorRed = $null
+    $script:colorMuted = $null
 }
+
+function Reset-GraphAppRoleManagerState {
+    if ($null -ne $script:form) {
+        try {
+            $script:form.Dispose()
+        }
+        catch {}
+    }
+
+    Initialize-GraphAppRoleManagerModuleState
+}
+
+Initialize-GraphAppRoleManagerModuleState
 
 # ---------------------------------------------------------------------------
 # HELPERS
@@ -150,7 +203,7 @@ Install them for the current user now?
 }
 
 function Get-SelectedTargetServicePrincipal {
-    if ($null -eq $script:cmbIdentityResults.SelectedItem) {
+    if ($null -eq $script:cmbIdentityResults -or $null -eq $script:cmbIdentityResults.SelectedItem) {
         return $null
     }
 

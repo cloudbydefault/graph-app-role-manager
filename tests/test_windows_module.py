@@ -67,6 +67,25 @@ class WindowsModuleArchitectureTests(unittest.TestCase):
         )
         self.assertIn("[string]$LogLevel = 'INFO'", LAUNCHER_TEXT)
 
+    def test_module_state_is_initialized_before_reset_reads_controls(self) -> None:
+        self.assertIn("function Initialize-GraphAppRoleManagerModuleState", MODULE_TEXT)
+        self.assertIn("$script:form = $null", MODULE_TEXT)
+        self.assertRegex(
+            MODULE_TEXT,
+            r"function Reset-GraphAppRoleManagerState \{[\s\S]*?\$null -ne \$script:form[\s\S]*?Initialize-GraphAppRoleManagerModuleState",
+        )
+        self.assertRegex(
+            MODULE_TEXT,
+            r"Initialize-GraphAppRoleManagerModuleState\s*\n\s*\n# ---------------------------------------------------------------------------\n# HELPERS",
+        )
+        reset_start = MODULE_TEXT.index("function Reset-GraphAppRoleManagerState")
+        form_init = MODULE_TEXT.index("$script:form = $null")
+        self.assertLess(
+            form_init,
+            reset_start,
+            "Module GUI state must be initialized before Reset reads $script:form.",
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
