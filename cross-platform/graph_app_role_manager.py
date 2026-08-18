@@ -67,6 +67,7 @@ class PowerShellBridge:
             stderr=subprocess.PIPE,
             text=True,
             encoding="utf-8",
+            errors="replace",
             bufsize=1,
         )
         threading.Thread(target=self._read_stdout, daemon=True).start()
@@ -197,7 +198,6 @@ class GraphAppRoleManager(tk.Tk):
         self.selected_role_ids: set[str] = set()
         self.rendering_permissions = False
         self.identity_results: list[dict[str, Any]] = []
-        self.all_identity_results: list[dict[str, Any]] = []
         self.selected_sp: dict[str, Any] | None = None
         self.current_assignments: dict[str, dict[str, Any]] = {}
         self.connected = False
@@ -334,7 +334,6 @@ class GraphAppRoleManager(tk.Tk):
         self.identity_name_var = tk.StringVar()
         identity_entry = ttk.Entry(row, textvariable=self.identity_name_var)
         identity_entry.pack(side="left", fill="x", expand=True, padx=10)
-        identity_entry.bind("<KeyRelease>", lambda _event: self.filter_identity_combo())
         ttk.Button(row, text="Search", command=self.search_identity).pack(side="left")
         self.identity_combo = ttk.Combobox(identity, state="readonly")
         self.identity_combo.pack(fill="x", pady=(10, 8))
@@ -477,8 +476,6 @@ class GraphAppRoleManager(tk.Tk):
                     self.on_connected(payload)
                 elif event == "identities":
                     self.on_identities(payload)
-                elif event == "all_identities":
-                    self.on_all_identities(payload)
                 elif event == "roles":
                     self.on_roles(payload)
                 elif event == "assignments":
@@ -634,33 +631,6 @@ class GraphAppRoleManager(tk.Tk):
         self.connect_button.configure(text=f"Connected: {account}")
         self.log(f"Connected as {account} in tenant {result.get('tenantId')}", "SUCCESS")
         self.load_permissions()
-        self.load_all_identities()
-
-    def load_all_identities(self) -> None:
-        if not self.connected:
-            return
-        self.log("Loading Managed Identities and Service Principals...")
-        self.run_async("all_identities", lambda: self.bridge.call("listServicePrincipals", timeout=180))
-
-    def on_all_identities(self, values: list[dict[str, Any]]) -> None:
-        self.set_busy(False)
-        self.all_identity_results = values
-        self.log(f"Loaded {len(values)} Managed Identities and Service Principals.", "SUCCESS")
-        self.filter_identity_combo()
-
-    def filter_identity_combo(self) -> None:
-        term = self.identity_name_var.get().strip().lower()
-        source = self.all_identity_results
-        if term:
-            values = [
-                item for item in source
-                if term in str(item.get("displayName", "")).lower()
-                or term in str(item.get("appId", "")).lower()
-                or term in str(item.get("id", "")).lower()
-            ]
-        else:
-            values = source
-        self.populate_identity_combo(values)
 
     def populate_identity_combo(self, values: list[dict[str, Any]]) -> None:
         self.identity_results = values
