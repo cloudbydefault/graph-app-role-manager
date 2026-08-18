@@ -21,6 +21,29 @@ From the repository root:
 pwsh -File .\windows\Graph-App-Role-Manager.ps1
 ```
 
+The launcher imports the local PowerShell module next to it and starts the Windows
+Forms application. This command remains the normal quick-start entry point.
+
+Optional module usage:
+
+```powershell
+Import-Module .\windows\Graph-App-Role-Manager.psm1
+Start-GraphAppRoleManager
+```
+
+Optional log filtering:
+
+```powershell
+pwsh -File .\windows\Graph-App-Role-Manager.ps1 -LogLevel WARNING
+```
+
+```powershell
+Start-GraphAppRoleManager -LogLevel WARNING
+```
+
+`-LogLevel` accepts `INFO`, `SUCCESS`, `WARNING`, or `ERROR`. The default is `INFO`,
+which preserves the current informational activity log.
+
 If a required Microsoft Graph module is missing, the interface displays the exact module
 names and asks whether it may install them for the current user. Declining leaves the
 machine unchanged and stops the connection.
