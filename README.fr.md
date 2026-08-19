@@ -2,8 +2,7 @@
 
 [English version](README.md)
 
-**Version actuelle du dépôt : [v1.2.0](https://github.com/cloudbydefault/graph-app-role-manager/releases/tag/v1.2.0)**  
-**Version de l'interface multiplateforme : v1.1.0**
+**Version actuelle du dépôt : [v1.2.0](https://github.com/cloudbydefault/graph-app-role-manager/releases/tag/v1.2.0)**
 
 Graph App Role Manager est une interface graphique permettant de consulter, d'attribuer et
 de supprimer les permissions d'application Microsoft Graph d'une identité managée ou d'un
@@ -48,8 +47,10 @@ Consultez les [notes de version v1.2.0](https://github.com/cloudbydefault/graph-
 
 | Version | Usage conseillé | Authentification | Prérequis |
 | --- | --- | --- | --- |
-| **[Interface Python multiplateforme v1.1.0](cross-platform/graph_app_role_manager.py) — recommandée** | Windows, macOS ou Linux | Device Code sous Windows ; navigateur interactif sous macOS/Linux | Python 3.10+, Tkinter, PowerShell 7, `Microsoft.Graph.Authentication` |
-| [Interface PowerShell Windows native](windows/Graph-App-Role-Manager.ps1) | Administrateurs Windows préférant une interface entièrement PowerShell | `Connect-MgGraph` interactif | Windows, PowerShell 7+, modules Microsoft Graph |
+| **[Interface Python multiplateforme — release v1.2.0](cross-platform/graph_app_role_manager.py) — recommandée** | Windows, macOS ou Linux | Device Code sous Windows ; navigateur interactif sous macOS/Linux | Python 3.10+, Tkinter, PowerShell 7, `Microsoft.Graph.Authentication` |
+| [Interface PowerShell Windows native — release v1.2.0](windows/Graph-App-Role-Manager.ps1) | Administrateurs Windows préférant une interface entièrement PowerShell | `Connect-MgGraph` interactif | Windows, PowerShell 7+, modules Microsoft Graph |
+
+Le fichier Python multiplateforme affiche encore `APP_VERSION = "1.1.0"` en interne ; cette valeur n'a pas encore été incrémentée même si la release actuelle du dépôt, qui contient les correctifs de fiabilité, est la v1.2.0.
 
 La version multiplateforme ne nécessite ni App Registration dédiée, ni Client ID, ni
 secret, ni certificat, ni paquet Python supplémentaire.
