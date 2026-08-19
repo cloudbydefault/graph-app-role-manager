@@ -2,7 +2,8 @@
 
 [English version](README.md)
 
-**Version multiplateforme actuelle : v1.1**
+**Version actuelle du dépôt : [v1.2.0](https://github.com/cloudbydefault/graph-app-role-manager/releases/tag/v1.2.0)**  
+**Version de l'interface multiplateforme : v1.1.0**
 
 Graph App Role Manager est une interface graphique permettant de consulter, d'attribuer et
 de supprimer les permissions d'application Microsoft Graph d'une identité managée ou d'un
@@ -16,6 +17,17 @@ Le dépôt contient deux versions :
 Les permissions disponibles sont lues directement depuis le Service Principal Microsoft
 Graph du tenant. Elles ne sont pas enregistrées dans une liste statique dans le code.
 
+## Nouveautés de la v1.2.0
+
+- Protocole Python/PowerShell persistant fiabilisé avec une sortie UTF-8 déterministe et un décodage défensif côté Python.
+- Suppression du préchargement automatique de tous les Service Principals dans l'interface multiplateforme ; la recherche explicite se fait désormais côté serveur.
+- Refactorisation de la version Windows native en module PowerShell réutilisable tout en conservant le lanceur `.ps1` existant.
+- Ajout du paramètre optionnel `-LogLevel` avec `INFO`, `SUCCESS`, `WARNING` et `ERROR`.
+- Isolation de l'état du module natif et initialisation renforcée avec `Set-StrictMode -Version Latest`.
+- Extension des tests de régression et du smoke test Windows, avec validation des fichiers `.psm1` dans la CI.
+
+Consultez les [notes de version v1.2.0](https://github.com/cloudbydefault/graph-app-role-manager/releases/tag/v1.2.0) pour le détail.
+
 ## Fonctionnalités
 
 - Authentification interactive avec Microsoft Entra ID.
@@ -24,7 +36,7 @@ Graph du tenant. Elles ne sont pas enregistrées dans une liste statique dans le
 - Affichage des App Roles Graph déjà attribués à l'identité sélectionnée.
 - Attribution de plusieurs permissions en évitant les doublons.
 - Suppression des permissions sélectionnées après confirmation explicite.
-- Filtrage local de la liste des identités du tenant ou recherche par nom côté serveur.
+- Recherche explicite des Service Principals côté serveur dans l'interface multiplateforme, sans précharger toute la liste du tenant.
 - Conservation des permissions sélectionnées pendant le filtrage.
 - Dialogue dédié au Device Code sous Windows pour éviter les erreurs de Window Handle WAM.
 - Interface multiplateforme modernisée avec des contrôles et tableaux plus lisibles.
@@ -36,7 +48,7 @@ Graph du tenant. Elles ne sont pas enregistrées dans une liste statique dans le
 
 | Version | Usage conseillé | Authentification | Prérequis |
 | --- | --- | --- | --- |
-| **[Interface Python multiplateforme v1.1](cross-platform/graph_app_role_manager.py) — recommandée** | Windows, macOS ou Linux | Device Code sous Windows ; navigateur interactif sous macOS/Linux | Python 3.10+, Tkinter, PowerShell 7, `Microsoft.Graph.Authentication` |
+| **[Interface Python multiplateforme v1.1.0](cross-platform/graph_app_role_manager.py) — recommandée** | Windows, macOS ou Linux | Device Code sous Windows ; navigateur interactif sous macOS/Linux | Python 3.10+, Tkinter, PowerShell 7, `Microsoft.Graph.Authentication` |
 | [Interface PowerShell Windows native](windows/Graph-App-Role-Manager.ps1) | Administrateurs Windows préférant une interface entièrement PowerShell | `Connect-MgGraph` interactif | Windows, PowerShell 7+, modules Microsoft Graph |
 
 La version multiplateforme ne nécessite ni App Registration dédiée, ni Client ID, ni
@@ -87,8 +99,23 @@ Les prérequis par système et le dépannage se trouvent dans le
 
 ### Alternative Windows native
 
+Lanceur standard :
+
 ```powershell
 pwsh -File .\windows\Graph-App-Role-Manager.ps1
+```
+
+Filtrage optionnel du journal :
+
+```powershell
+pwsh -File .\windows\Graph-App-Role-Manager.ps1 -LogLevel WARNING
+```
+
+Utilisation directe du module :
+
+```powershell
+Import-Module .\windows\Graph-App-Role-Manager.psm1
+Start-GraphAppRoleManager
 ```
 
 L'interface native peut proposer l'installation des modules Graph absents pour
