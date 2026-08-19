@@ -2,8 +2,7 @@
 
 [Version française](README.fr.md)
 
-**Current repository release: [v1.2.0](https://github.com/cloudbydefault/graph-app-role-manager/releases/tag/v1.2.0)**  
-**Cross-platform GUI version: v1.1.0**
+**Current repository release: [v1.2.0](https://github.com/cloudbydefault/graph-app-role-manager/releases/tag/v1.2.0)**
 
 A graphical tool for inspecting, assigning, and removing Microsoft Graph application
 permissions on managed identities and service principals.
@@ -47,8 +46,10 @@ See the [v1.2.0 release notes](https://github.com/cloudbydefault/graph-app-role-
 
 | Version | Best for | Authentication | Requirements |
 | --- | --- | --- | --- |
-| **[Cross-platform Python GUI v1.1.0](cross-platform/graph_app_role_manager.py) (recommended)** | Windows, macOS, or Linux desktops | Device code on Windows; interactive browser on macOS/Linux | Python 3.10+, Tkinter, PowerShell 7, `Microsoft.Graph.Authentication` |
-| [Native Windows PowerShell GUI](windows/Graph-App-Role-Manager.ps1) | Windows administrators who prefer a PowerShell-only interface | Interactive `Connect-MgGraph` | Windows, PowerShell 7+, Microsoft Graph modules |
+| **[Cross-platform Python GUI — v1.2.0 release](cross-platform/graph_app_role_manager.py) (recommended)** | Windows, macOS, or Linux desktops | Device code on Windows; interactive browser on macOS/Linux | Python 3.10+, Tkinter, PowerShell 7, `Microsoft.Graph.Authentication` |
+| [Native Windows PowerShell GUI — v1.2.0 release](windows/Graph-App-Role-Manager.ps1) | Windows administrators who prefer a PowerShell-only interface | Interactive `Connect-MgGraph` | Windows, PowerShell 7+, Microsoft Graph modules |
+
+The cross-platform Python file still reports internal `APP_VERSION = "1.1.0"`; that value has not yet been bumped even though the current repository release containing the reliability fixes is v1.2.0.
 
 The cross-platform version does not require a custom App Registration, client ID, client
 secret, certificate, or additional Python packages.
