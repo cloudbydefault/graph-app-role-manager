@@ -2,7 +2,8 @@
 
 [Version française](README.fr.md)
 
-**Current cross-platform version: v1.1**
+**Current repository release: [v1.2.0](https://github.com/cloudbydefault/graph-app-role-manager/releases/tag/v1.2.0)**  
+**Cross-platform GUI version: v1.1.0**
 
 A graphical tool for inspecting, assigning, and removing Microsoft Graph application
 permissions on managed identities and service principals.
@@ -15,6 +16,17 @@ The repository contains two interfaces:
 Both versions query the Microsoft Graph service principal directly, so the available
 application-permission catalog stays aligned with the tenant instead of being hard-coded.
 
+## What's new in v1.2.0
+
+- Hardened the persistent Python/PowerShell protocol with deterministic UTF-8 output and defensive decoding.
+- Removed automatic tenant-wide Service Principal preloading from the cross-platform GUI; explicit server-side search is used instead.
+- Refactored the native Windows implementation into a reusable PowerShell module while keeping the existing `.ps1` launcher.
+- Added optional native `-LogLevel` filtering with `INFO`, `SUCCESS`, `WARNING`, and `ERROR`.
+- Isolated native module state and hardened first-run initialization under `Set-StrictMode -Version Latest`.
+- Expanded regression coverage and the Windows native smoke test, including `.psm1` validation in CI.
+
+See the [v1.2.0 release notes](https://github.com/cloudbydefault/graph-app-role-manager/releases/tag/v1.2.0) for the full summary.
+
 ## Features
 
 - Authenticate interactively with Microsoft Entra ID.
@@ -23,7 +35,7 @@ application-permission catalog stays aligned with the tenant instead of being ha
 - Display the Microsoft Graph app roles currently assigned to the selected identity.
 - Assign several permissions in one operation while avoiding duplicates.
 - Remove selected assignments after an explicit confirmation.
-- Filter a tenant-wide identity list locally or run a server-side display-name search.
+- Use explicit server-side Service Principal search in the cross-platform GUI instead of preloading the full tenant list.
 - Keep permission selections while changing the permission filter.
 - Use a dedicated device-code sign-in dialog on Windows to avoid WAM window-handle errors.
 - Use the refreshed cross-platform interface with clearer controls and tables.
@@ -35,7 +47,7 @@ application-permission catalog stays aligned with the tenant instead of being ha
 
 | Version | Best for | Authentication | Requirements |
 | --- | --- | --- | --- |
-| **[Cross-platform Python GUI v1.1](cross-platform/graph_app_role_manager.py) (recommended)** | Windows, macOS, or Linux desktops | Device code on Windows; interactive browser on macOS/Linux | Python 3.10+, Tkinter, PowerShell 7, `Microsoft.Graph.Authentication` |
+| **[Cross-platform Python GUI v1.1.0](cross-platform/graph_app_role_manager.py) (recommended)** | Windows, macOS, or Linux desktops | Device code on Windows; interactive browser on macOS/Linux | Python 3.10+, Tkinter, PowerShell 7, `Microsoft.Graph.Authentication` |
 | [Native Windows PowerShell GUI](windows/Graph-App-Role-Manager.ps1) | Windows administrators who prefer a PowerShell-only interface | Interactive `Connect-MgGraph` | Windows, PowerShell 7+, Microsoft Graph modules |
 
 The cross-platform version does not require a custom App Registration, client ID, client
@@ -85,8 +97,23 @@ troubleshooting.
 
 ### Native Windows alternative
 
+Standard launcher:
+
 ```powershell
 pwsh -File .\windows\Graph-App-Role-Manager.ps1
+```
+
+Optional log filtering:
+
+```powershell
+pwsh -File .\windows\Graph-App-Role-Manager.ps1 -LogLevel WARNING
+```
+
+Optional direct module usage:
+
+```powershell
+Import-Module .\windows\Graph-App-Role-Manager.psm1
+Start-GraphAppRoleManager
 ```
 
 The native interface can offer to install missing Microsoft Graph modules for the current
